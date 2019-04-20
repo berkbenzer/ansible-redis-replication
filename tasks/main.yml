@@ -1,2 +1,14 @@
 ---
 # tasks file for ansible-redis-replication
+- name: generate config for slaves
+  template:
+    src: redis.conf.j2
+    dest: /etc/redis/redis.conf
+    mode: 0640
+    owner: redis
+
+- name: restart redis service
+  service:
+    name: redis-server
+    state: restarted
+

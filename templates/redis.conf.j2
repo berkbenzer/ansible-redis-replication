@@ -1,0 +1,72 @@
+#general
+daemonize {{ redis_daemonize|string }}
+pidfile {{ redis_pidfile }}
+dir {{ redis_dir }}
+port {{ redis_port }}
+bind {{ redis_bind }}
+timeout {{ redis_timeout }}
+tcp-keepalive {{ redis_tcp_keepalive }}
+tcp-backlog {{ redis_tcp_backlog }}
+loglevel {{ redis_loglevel }}
+# logfile redis_logfile 
+databases {{ redis_databases }}
+tcp-keepalive {{ redis_tcp_keepalive }}
+
+#snapshotting
+{% for save in redis_save -%}
+save {{ save }}
+{% endfor -%}
+stop-writes-on-bgsave-error {{ redis_stop_writes_on_bgsave_error|string }}
+rdbcompression {{ redis_rdbcompression|string }}
+rdbchecksum {{ redis_rdbchecksum|string }}
+dbfilename {{ redis_dbfilename|string }}
+
+#replication
+{% if 'redis_slave' in group_names %}
+replicaof {{ groups['redis_master'][0] }} {{ redis_port }}
+{% endif %}
+
+slave-serve-stale-data yes
+slave-read-only {{ redis_slave_read_only }}
+repl-disable-tcp-nodelay no
+
+{% if redis_repl_backlog_size -%}
+repl-backlog-size {{ redis_repl_backlog_size }}
+{% endif -%}
+
+slave-priority {{ redis_slave_priority }}
+
+{% if redis_min_slaves_to_write -%}
+min-slaves-to-write {{ redis_min_slaves_to_write }}
+{% endif -%}
+
+{% if redis_min_slaves_max_lag -%}
+min-slaves-max-lag {{ redis_min_slaves_max_lag }}
+{% endif -%}
+
+
+# Append Only Mode
+appendonly {{ redis_appendonly }}
+appendfilename "{{ redis_appendfilename }}"
+appendfsync {{ redis_appendfsync|string }}
+no-appendfsync-on-rewrite {{ redis_no_appendfsync_on_rewrite }}
+auto-aof-rewrite-percentage {{ redis_auto_aof_rewrite_percentage }}
+auto-aof-rewrite-min-size {{ redis_auto_aof_rewrite_min_size }}
+
+# Event Notification
+notify-keyspace-events {{ redis_notify_keyspace_events }}
+
+# Advanced
+hash-max-ziplist-entries 512
+hash-max-ziplist-value 64
+list-max-ziplist-entries 512
+list-max-ziplist-value 64
+set-max-intset-entries 512
+zset-max-ziplist-entries 128
+zset-max-ziplist-value 64
+activerehashing yes
+client-output-buffer-limit normal {{ redis_client_output_buffer_limit_normal }}
+client-output-buffer-limit slave {{ redis_client_output_buffer_limit_slave }}
+client-output-buffer-limit pubsub {{ redis_client_output_buffer_limit_pubsub }}
+hz 10
+aof-rewrite-incremental-fsync yes
