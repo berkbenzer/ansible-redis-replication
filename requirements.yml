@@ -1,0 +1,3 @@
+- src: https://github.com/sudeepgupta90/ansible-redis
+  version: master
+  name: ansible-redis
